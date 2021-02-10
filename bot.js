@@ -27,16 +27,16 @@ client.on("message", message => {
     const comando = args.shift().toLowerCase(); // Definição de variável para efetuar os comandos no bot
 
 if(comando === "cotação") {
-    let filter = m => m.author.id === message.author.id
-    message.channel.send(`Qual moeda quer verificar a cotação? Responda em 30 segundos.`).then(() => {
+    let filter = m => m.author.id === message.author.id 
+      .then(() => {
       message.channel.awaitMessages(filter, {
           max: 1,
           time: 30000,
           errors: ['time']
         })
         .then(message => {
-          message = message.first();
           async function robo(moeda) {
+            message = message.first();
             const browser = await puppeteer.launch({ headless: true });
             const page = await browser.newPage();
             const moedaBase = `${moeda}`;
@@ -44,22 +44,26 @@ if(comando === "cotação") {
           
             const qualquerUrl = `https://www.google.com/search?q=${moedaBase}+para+${moedaFinal}&oq=${moedaBase}+para+${moedaFinal}&aqs=chrome.0.69i59j0l7.1726j0j4&sourceid=chrome&ie=UTF-8`;
             await page.goto(qualquerUrl);
-            // await page.screenshot({path: 'example.png'});
           
             const resultado = await page.evaluate(() => {
               return document.querySelector('.a61j6.vk_gy.vk_sh.Hg3mWc').value;
             });
           
-            message.channel.send(`O valor de 1 ${moedaBase} em ${moedaFinal} é R$${resultado}`)
-            await browser.close();
+            message.channel.send(`O valor de 1 ${moedaBase} em ${moedaFinal} é R$ ${resultado}`);
           }
+          
           robo(message.content);
         })
         .catch(collected => {
             message.channel.send('Tempo esgotado! Responda em 30 segundos da próxima vez...');
         });
     })
+}
 
-}});
+if(comando === "avatar"){
+    message.reply(message.author.displayAvatarURL());
+  }
+}
 
+);
 client.login(config.token);
